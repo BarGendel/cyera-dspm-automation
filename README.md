@@ -1,6 +1,6 @@
 # Cyera DSPM Automation
 
-Minimal Python + Pytest + Playwright project for the Cyera DSPM assignment.
+Python + Pytest + Playwright project
 
 ## Project Structure
 
