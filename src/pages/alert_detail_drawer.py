@@ -9,7 +9,7 @@ from src.utils.ui_helpers import _click_first, _fill_first
 logger = logging.getLogger(__name__)
 
 
-class AlertDetailPage:
+class AlertDetailDrawer:
     def __init__(self, page: Page):
         self.page = page
 

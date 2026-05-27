@@ -8,7 +8,7 @@ Python + Pytest + Playwright project
 src/
   api/         # REST API client actions and alert parsing
   core/        # settings, alert statuses, polling helper
-  pages/       # Playwright page objects
+  pages/       # Playwright page objects and drawer components
   utils/       # shared UI helper functions
 tests/
   api/         # API tests and API-specific fixtures

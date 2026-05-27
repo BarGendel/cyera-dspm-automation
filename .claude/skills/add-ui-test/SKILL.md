@@ -22,7 +22,7 @@ Do not add broad refactors, raw codegen, screenshots, traces, or unrelated chang
    from playwright.sync_api import Page
 
    from src.pages.alerts_list import AlertsListPage
-   from src.pages.alert_detail import AlertDetailPage
+   from src.pages.alert_detail_drawer import AlertDetailDrawer
    from src.pages.login_page import LoginPage
 
    class TestFeature:
@@ -30,7 +30,7 @@ Do not add broad refactors, raw codegen, screenshots, traces, or unrelated chang
        def setup(self, page: Page) -> None:
            self.login_page = LoginPage(page)
            self.alerts_list = AlertsListPage(page)
-           self.alert_detail = AlertDetailPage(page)
+           self.alert_detail_drawer = AlertDetailDrawer(page)
    ```
    - Add `@pytest.mark.requires_scan` to UI tests/classes that need alert data from a scan.
    - Never call `api_client.start_scan()` manually from UI tests.
