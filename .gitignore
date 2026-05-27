@@ -1,10 +1,30 @@
+# Python
 .venv/
 __pycache__/
 *.pyc
+*.egg-info/
+
+# Local environment
 .env
+.DS_Store
+
+# IDE / local AI settings
 .idea/
+.claude/settings.local.json
+
+# Pytest / reports / logs
 .pytest_cache/
+.artifacts/
 reports/
 logs/
-*.egg-info/
-.DS_Store
+
+# Playwright / MCP generated artifacts
+.playwright-cli/
+.playwright-mcp/
+test-results/
+playwright-report/
+*.trace.zip
+*.webm
+after-remediate.png
+final-state.png
+remediation-section.png

@@ -12,8 +12,8 @@ dependencies = [
     "pytest==8.3.4",
 ]
 
-[tool.setuptools]
-py-modules = ["api_helpers", "shared", "ui_helpers"]
+[tool.setuptools.packages.find]
+include = ["src*"]
 
 [tool.pytest.ini_options]
 minversion = "8.0"
@@ -24,5 +24,7 @@ markers = [
     "ui: UI tests through the frontend",
     "api: REST API tests",
     "e2e: end-to-end business workflow tests",
+    "login_via_ui: opt out of automatic session login for tests that validate the login page",
+    "requires_scan: UI tests that need alert data seeded by a scan",
     "known_issue: known product behavior that is intentionally documented",
 ]

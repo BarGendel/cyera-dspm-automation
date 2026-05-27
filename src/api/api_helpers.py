@@ -1,10 +1,11 @@
 import logging
+import time
 from dataclasses import dataclass
 from typing import Any
 
 from playwright.sync_api import APIRequestContext
 
-from shared import AlertStatus, Settings, wait_until
+from src.core.shared import AlertStatus, Settings, wait_until
 
 logger = logging.getLogger(__name__)
 
@@ -122,7 +123,17 @@ class DspmApiClient:
 
     def reset_data(self) -> None:
         logger.info("Resetting test data")
-        self._expect("POST", f"{self.settings.bff_base_url}/api/admin/reset", expected=(200, 201, 202, 204))
+        reset_url = f"{self.settings.bff_base_url}/api/admin/reset"
+        for attempt, delay_s in enumerate((0, 3, 6, 12), start=1):
+            if delay_s:
+                time.sleep(delay_s)
+            try:
+                self._expect("POST", reset_url, expected=(200, 201, 202, 204))
+                return
+            except AssertionError as exc:
+                if "returned 429" not in str(exc) or attempt == 4:
+                    raise
+                logger.warning("Reset was rate-limited; retrying attempt %s/4", attempt + 1)
 
     def start_scan(self) -> None:
         logger.info("Starting scan")

@@ -17,6 +17,12 @@ def _int_env(name: str, default: int) -> int:
 
 
 @dataclass(frozen=True)
+class UserCredentials:
+    username: str
+    auth_token: str
+
+
+@dataclass(frozen=True)
 class Settings:
     web_base_url: str = os.getenv("WEB_BASE_URL", "http://localhost:3000").rstrip("/")
     api_base_url: str = os.getenv("API_BASE_URL", "http://localhost:8080").rstrip("/")
@@ -28,6 +34,21 @@ class Settings:
     slow_mo_ms: int = _int_env("SLOW_MO_MS", 0)
     default_timeout_ms: int = _int_env("DEFAULT_TIMEOUT_MS", 15_000)
     api_timeout_ms: int = _int_env("API_TIMEOUT_MS", 15_000)
+
+    def get_user(self, user_type: str = "valid") -> UserCredentials:
+        users = {
+            "valid": UserCredentials(
+                username=self.username,
+                auth_token=self.auth_token,
+            ),
+            "invalid": UserCredentials(
+                username=os.getenv("CYERA_INVALID_USERNAME", "invalid_user"),
+                auth_token=os.getenv("CYERA_INVALID_AUTH_TOKEN", "bad-token"),
+            ),
+        }
+        if user_type not in users:
+            raise ValueError(f"Unknown user type '{user_type}'. Available: {list(users)}")
+        return users[user_type]
 
 
 class AlertStatus:

@@ -1,6 +1,6 @@
 import pytest
 
-from shared import AlertStatus
+from src.core.shared import AlertStatus
 
 FINAL_COMMENT = "Remediation verified successfully and issue is resolved"
 
@@ -8,10 +8,7 @@ FINAL_COMMENT = "Remediation verified successfully and issue is resolved"
 @pytest.mark.api
 @pytest.mark.e2e
 @pytest.mark.known_issue
-def test_auto_remediation_rescan_does_not_recreate_identical_alert(api_client, clean_system):
-    # Create the initial set of alerts through the backend scan.
-    api_client.start_scan()
-
+def test_auto_remediation_rescan_does_not_recreate_identical_alert(api_client):
     # Pick an auto-remediation alert; this is the alert the product should fix automatically.
     original_alert = api_client.find_alert(
         statuses=[AlertStatus.OPEN, AlertStatus.REMEDIATION_IN_PROGRESS],
