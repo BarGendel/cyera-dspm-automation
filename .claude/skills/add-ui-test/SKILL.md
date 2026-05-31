@@ -16,39 +16,53 @@ Do not add broad refactors, raw codegen, screenshots, traces, or unrelated chang
 ## Workflow
 
 1. Inspect existing tests and helpers first.
-2. Identify the smallest useful business rule to test.
-3. Import page objects from `src.pages`, then create them in the class `setup()` from the raw `page` fixture:
+2. Run the clarity gate before editing code:
+   - Business rule: what exact behavior should be protected?
+   - Preconditions: what data/state/user role is required?
+   - User action: what will the browser actually do?
+   - Assertions: what exact visible UI outcome proves success?
+   - Scope: UI only, or does API setup/verification matter?
+   - Exploration: is MCP/Playwright CLI needed to discover real labels or locators?
+   If any answer is vague, stop and ask one focused clarification question.
+3. Identify the smallest useful business rule to test.
+4. Import page objects from `src.pages`, then create them in the class `setup()` from the raw `page` fixture:
    ```python
    from playwright.sync_api import Page
 
    from src.pages.alerts_list import AlertsListPage
    from src.pages.alert_detail_drawer import AlertDetailDrawer
-   from src.pages.login_page import LoginPage
 
    class TestFeature:
        @pytest.fixture(autouse=True)
        def setup(self, page: Page) -> None:
-           self.login_page = LoginPage(page)
            self.alerts_list = AlertsListPage(page)
            self.alert_detail_drawer = AlertDetailDrawer(page)
    ```
    - Add `@pytest.mark.requires_scan` to UI tests/classes that need alert data from a scan.
    - Never call `api_client.start_scan()` manually from UI tests.
    - Do NOT use `authenticated_page`; UI tests get valid session login automatically from `tests/ui/conftest.py`.
-4. Always call `api_client.find_alert(...)` in the test body — the alert type is a business decision visible in the test.
-5. Do not call session login manually in normal UI tests. Use this only for tests that validate the login screen itself:
+5. Always call `api_client.find_alert(...)` in the test body — the alert type is a business decision visible in the test.
+6. Do not call session login manually in normal UI tests. Use `LoginPage` only for tests that validate the login screen itself:
    ```python
+   from src.pages.login_page import LoginPage
+
    @pytest.mark.login_via_ui
-   def test_valid_login(self):
-       self.login_page.login_via_ui()
+   class TestLogin:
+       @pytest.fixture(autouse=True)
+       def setup(self, page: Page) -> None:
+           self.login_page = LoginPage(page)
+
+       def test_valid_login(self):
+           self.login_page.login_via_ui()
    ```
-6. Use `self.alerts_list.open_alert(alert)` to navigate, then page object methods for each UI section.
-7. Each UI section gets its own file in `src/pages/`. Locators are defined in `__init__` — never in `src/utils/ui_helpers.py` or test files.
-8. Exercise behavior through the UI after setup.
-9. Exercise the behavior under test through the UI.
-10. Reuse `src/utils/ui_helpers.py` helpers where possible.
-11. Add exactly one test unless the user explicitly asks for more.
-12. Run the UI suite.
+7. Use `self.alerts_list.open_alert(alert)` to navigate, then page object methods for each UI section.
+8. Each UI section gets its own file in `src/pages/`. Locators are defined in `__init__`, not in test files.
+9. Exercise behavior through the UI after setup.
+10. Exercise the behavior under test through the UI.
+11. Reuse existing page object methods where possible.
+12. Add exactly one test unless the user explicitly asks for more.
+13. Run the UI suite.
+14. Run a cleanup check: search for newly added locators or methods and remove anything unused.
 
 ## Playwright CLI Use
 
@@ -76,18 +90,26 @@ Rules:
 
 ## Locator Policy
 
-Prefer accessibility-first locators:
+Prefer stable product-owned locators first:
 
-1. role/name
-2. label
-3. visible text
-4. placeholder
-5. test id
-6. CSS only as last resort
+1. `data-testid` / `data-test-id`
+2. stable HTML `id`
+3. role/name
+4. label
+5. visible text
+6. placeholder
+7. CSS only as last resort
 
 Python examples:
 
 ```python
+# data-testid / data-test-id
+page.get_by_test_id("submit-remediation")
+
+# stable HTML id
+page.locator("#alert-search")
+
+# accessibility and text fallbacks
 page.get_by_role("button", name=re.compile("sign in", re.I))
 page.get_by_label(re.compile("email", re.I))
 page.get_by_text(re.compile("resolved", re.I))
@@ -108,9 +130,19 @@ Do not use fixed sleeps such as `page.wait_for_timeout()`.
 Do not weaken assertions to make flaky tests pass.
 Use self-healing only for interaction locators, not business assertions.
 
+## Cleanup Policy
+
+After adding or changing a page object method/locator:
+
+```bash
+rg "new_method_or_locator_name" src tests
+```
+
+Keep only methods and locators referenced by tests or other page object methods.
+
 ## Scope Policy
 
-For this assignment, prefer lightweight helpers over Page Object Model classes.
+For this assignment, prefer focused page object methods over generic helper modules.
 
 Introduce Page Objects only when repeated behavior across multiple pages/tests makes the abstraction worthwhile.
 

@@ -21,7 +21,7 @@ class AlertsListPage:
 
     def navigate(self) -> None:
         logger.info("Navigating to Alerts tab")
-        self.page.goto(f"{self.page.base_url.rstrip('/')}/alerts", wait_until="networkidle")
+        self.page.goto("/alerts", wait_until="networkidle")
 
     def open_alert(self, alert: Any) -> None:
         logger.info("Opening alert: %s", alert.search_text)

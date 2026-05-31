@@ -1,13 +1,13 @@
 import pytest
 
-from src.pages.login_page import LoginPage
+from src.utils.auth_helpers import login_via_session
 
 
 @pytest.fixture(autouse=True)
-def session_login(page, request):
+def session_login(page, settings, request):
     if request.node.get_closest_marker("login_via_ui"):
         return
-    LoginPage(page).login_via_session("valid")
+    login_via_session(page, settings, "valid")
 
 
 @pytest.fixture(autouse=True)

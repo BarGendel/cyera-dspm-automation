@@ -38,10 +38,10 @@ When adding UI tests:
 - Keep `api_client.find_alert(...)` inside the test so the selected business precondition is visible.
 - Add `@pytest.mark.requires_scan` to UI tests/classes that need alert data from a scan.
 - Follow the class setup pattern: create page objects from the raw `page` fixture in `setup()`.
-- Include `self.login_page = LoginPage(page)` in UI test classes that need authenticated navigation.
 - UI tests get valid session login automatically from `tests/ui/conftest.py`.
-- Do not call `self.login_page.login_via_session("valid")` manually in normal UI tests.
-- Use `@pytest.mark.login_via_ui` plus `self.login_page.login_via_ui()` only when the login page itself is the behavior under test.
+- Keep session/localStorage authentication in `src/utils/auth_helpers.py`, not in page objects.
+- Include `self.login_page = LoginPage(page)` only when the login page itself is the behavior under test.
+- Use `@pytest.mark.login_via_ui` plus `self.login_page.login_via_ui()` for login-page UI tests.
 - For UI alert tests, select the alert in the test and then call `self.alerts_list.open_alert(alert)`.
 - Exercise the behavior under test through the UI.
 - Reuse page objects and helpers where possible.

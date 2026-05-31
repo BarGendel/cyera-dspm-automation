@@ -4,7 +4,6 @@ from playwright.sync_api import Page, expect
 from src.core.shared import AlertStatus
 from src.pages.alert_detail_drawer import AlertDetailDrawer
 from src.pages.alerts_list import AlertsListPage
-from src.pages.login_page import LoginPage
 
 FINAL_COMMENT = "Remediation verified successfully and issue is resolved"
 REMEDIATION_NOTES = "Manual remediation was executed by automation and is ready for verification"
@@ -16,7 +15,6 @@ ASSIGNEE = "Security Analyst"
 class TestManualRemediationLifecycle:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page) -> None:
-        self.login_page = LoginPage(page)
         self.alerts_list = AlertsListPage(page)
         self.alert_detail_drawer = AlertDetailDrawer(page)
 

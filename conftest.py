@@ -163,7 +163,7 @@ def browser(playwright_instance, settings: Settings):
 
 @pytest.fixture
 def page(browser, settings: Settings):
-    context = browser.new_context(viewport={"width": 1440, "height": 1000})
+    context = browser.new_context(base_url=settings.web_base_url, viewport={"width": 1440, "height": 1000})
     page = context.new_page()
     page.set_default_timeout(settings.default_timeout_ms)
     yield page
@@ -218,12 +218,17 @@ def pytest_runtest_teardown(item):
 
 def pytest_sessionfinish(session, exitstatus):
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    passed = sum(result["outcome"] == "passed" for result in RESULTS)
+    failed = sum(result["outcome"] == "failed" for result in RESULTS)
+    skipped = sum(result["outcome"] == "skipped" for result in RESULTS)
+    ran = passed + failed
     report = {
         "exitstatus": exitstatus,
         "total": len(RESULTS),
-        "passed": sum(result["outcome"] == "passed" for result in RESULTS),
-        "failed": sum(result["outcome"] == "failed" for result in RESULTS),
-        "skipped": sum(result["outcome"] == "skipped" for result in RESULTS),
+        "passed": passed,
+        "failed": failed,
+        "skipped": skipped,
+        "success_rate": round(passed / ran * 100, 2) if ran > 0 else 0,
         "tests": RESULTS,
     }
     summary_json = json.dumps(report, indent=2)
